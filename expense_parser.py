@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import csv
-from BeautifulSoup import BeautifulSoup, SoupStrainer ##for mac use bs4
-
+from bs4 import BeautifulSoup, SoupStrainer 
 
 #filenames
 isracard_fn = '/home/redbend/Downloads/sheta.xls'
