@@ -3,7 +3,7 @@ import csv
 from bs4 import BeautifulSoup, SoupStrainer 
 
 #filenames
-isracard_fn = '/home/redbend/Downloads/sheta.xls'
+isracard_fn = 'sheta.xls'
 key_database_fn = 'fixed.csv'
 categories_db = 'businesses.csv'
 
@@ -38,7 +38,7 @@ def findnth(haystack, needle, n):
 #parse isracard xls in html format
 def parse_xls_html(path):
     htmlfile = open(path)
-    xls_soup = BeautifulSoup(htmlfile)
+    xls_soup = BeautifulSoup(htmlfile,"html.parser")
     for item in xls_soup.findAll("tr"):
         if "NIS" in str(item):
             blocks = str(item).split('<td')
@@ -48,7 +48,7 @@ def parse_xls_html(path):
                 k = str(blocks[2]).find("<")
                 key_var = blocks[2][1:k].replace("&#39;", "")
                 key_var = key_var.replace("&quot;", "")
-                sum_float =  float(blocks[4].split("</")[1][12:])
+                sum_float =  float(blocks[4].split("<span>")[1].split("</span>")[0])
                 insert_to_dic(key_var, sum_float, "")
     htmlfile.close
 
