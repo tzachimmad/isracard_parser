@@ -14,6 +14,7 @@ CASH_ENTRY = "משיכת מזומנים"
 expenses_dic = {}
 categorized_expenss = {}
 unlisted_entities = {}
+buisiness_to_entities = {}
 
 def print_to_csv(output_file,key,value,new_line):
     output_file.write(key)
@@ -81,6 +82,7 @@ for key in expenses_dic:
             break
     tmp = categorized_expenss.get(cat, 0)
     categorized_expenss[cat] = tmp + expenses_dic[key]
+    buisiness_to_entities[key] = cat
     if cat == "unlisted category":
         uncategorized.add(key)
 f.close()
@@ -111,7 +113,8 @@ print "\nTop Business Establishments:"
 print_to_csv(output_file,"Top Business Establishments","",True)
 pairs = sorted(expenses_dic.items(), key=lambda x: x[1])
 for tuple in reversed(pairs):
-    print tuple[0],":",tuple[1]
-    print_to_csv(output_file,tuple[0],tuple[1],True)
+    cat_for_expense = buisiness_to_entities.get(tuple[0],"unlisted category") + "," + tuple[0]
+    print cat_for_expense,":",tuple[1]
+    print_to_csv(output_file,cat_for_expense,tuple[1],True)
 
 output_file.close()
