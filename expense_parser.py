@@ -20,6 +20,9 @@ establishment_dic = {}
 category_dic = {}
 
 def print_to_csv(output_file,key,value,new_line):
+    key = key.replace(",","")
+    key = key.replace("\'","")
+    key = key.replace("\"","")
     output_file.write(key)
     output_file.write(",")
     output_file.write(str(value))
@@ -134,8 +137,7 @@ print_to_csv(output_file,"Top Business Establishments","",True)
 pairs = sorted(establishment_dic.items(), key=lambda x: x[1].get_amount())
 for tuple in reversed(pairs):
     estab = tuple[1]
-    print_estab = estab.get_category().get_name() + "," + estab.get_name()
-    print print_estab,":",estab.get_amount()
-    print_to_csv(output_file, print_estab, estab.get_amount(), True)
+    print estab.get_name(),":",estab.get_amount()
+    print_to_csv(output_file, estab.get_name(), estab.get_amount(), True)
 
 output_file.close()
