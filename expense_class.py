@@ -26,7 +26,7 @@ class Establishment(object):
     """Establishments in Isracard output xls
     """
 
-    def __init__(self, name, category = ""):
+    def __init__(self, name, category = None):
         self.expenses = []
         self.category = category
         self.amount = 0
