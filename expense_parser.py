@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from expense_class import *
 import csv
-from bs4 import BeautifulSoup, SoupStrainer 
+from bs4 import BeautifulSoup, SoupStrainer
+import datetime
+from datetime import date
 
 #filenames
 isracard_fn = 'sheta.xls'
@@ -9,12 +12,12 @@ categories_db = 'businesses.csv'
 
 #define vars
 CASH_ENTRY = "משיכת מזומנים"
+UNLISTED_CATEGORY = "unlisted category"
 
 #dictionaries
-expenses_dic = {}
-categorized_expenss = {}
-unlisted_entities = {}
-buisiness_to_entities = {}
+expense_list = []
+establishment_dic = {}
+category_dic = {}
 
 def print_to_csv(output_file,key,value,new_line):
     output_file.write(key)
@@ -23,18 +26,21 @@ def print_to_csv(output_file,key,value,new_line):
     if new_line:
         output_file.write("\n")
 
-def insert_to_dic(key_var, sum_float, cash_reduct):
-    tmp = expenses_dic.get(key_var, 0)
-    expenses_dic[key_var]= sum_float + tmp
-    if cash_reduct == CASH_ENTRY: #here reduct fixed expenses from cash entrys
-        tmp = expenses_dic.get(cash_reduct, 0)
-        expenses_dic[CASH_ENTRY]= tmp - sum_float
-
-def findnth(haystack, needle, n):
-    parts= haystack.split(needle, n+1)
-    if len(parts)<=n+1:
-        return -1
-    return len(haystack)-len(parts[-1])-len(needle)
+#Create Expense and Relative Establishment and put in appropriate set
+def add_expense(date_made, estab_name, amount, cash):
+    if estab_name in establishment_dic:
+        estab = establishment_dic[estab_name]
+    else:
+        estab = Establishment(estab_name)
+        establishment_dic[estab_name] =  estab
+    expense_input = Expense(date_made, estab, amount, cash)
+    estab.add_expense(expense_input)
+    expense_list.append(expense_input)
+    if cash:
+        if CASH_ENTRY not in establishment_dic:
+            establishment_dic[CASH_ENTRY] = Establishment(CASH_ENTRY)
+        tmp = establishment_dic.get(CASH_ENTRY)
+        tmp.set_amount(tmp.get_amount() - int(amount))
 
 #parse isracard xls in html format
 def parse_xls_html(path):
@@ -46,19 +52,47 @@ def parse_xls_html(path):
             if "grey" in blocks[0]:
                 break
             if "><" not in blocks[1]:
+                s = str(blocks[1]).find(">")+1
+                t = str(blocks[1]).find("<")
+                date_str =  str(blocks[1])[s:t]
+                date_split = date_str.split('/')
+                date_made = date(int(date_split[2]),int(date_split[1]), int(date_split[0]))
                 k = str(blocks[2]).find("<")
-                key_var = blocks[2][1:k].replace("&#39;", "")
-                key_var = key_var.replace("&quot;", "")
-                sum_float =  float(blocks[4].split("<span>")[1].split("</span>")[0])
-                insert_to_dic(key_var, sum_float, "")
+                establishment = blocks[2][1:k].replace("&#39;", "")
+                establishment = establishment.replace("&quot;", "")
+                amount =  float(blocks[4].split("<span>")[1].split("</span>")[0])
+                add_expense(date_made, establishment, amount, False)
     htmlfile.close
 
 #function, loads sheet expenses to expenses database dictionary
 def parse_expenses (path):
+  ##  date_made = expense_list[0].get_date()
+    date_made = datetime.date.today()
     f = open(path, 'rb')
     reader = csv.reader(f)
     for row in reader:
-        insert_to_dic(row[0],float(row[1]),row[2])
+        add_expense(date_made, str(row[0]), str(row[1]), str(row[2]) == CASH_ENTRY)
+    f.close()
+
+##set categories sums, unlisted sums
+def set_categories():
+    f = open(categories_db, 'rb')
+    reader = csv.reader(f)
+    uncategorized = Category(UNLISTED_CATEGORY)
+    category_dic[UNLISTED_CATEGORY] = uncategorized
+    for key in establishment_dic:
+        estab = establishment_dic[key]
+        cat = UNLISTED_CATEGORY
+        f.seek(0)
+        for row in reader:
+            if key in row:
+                cat = row[0]
+                break
+        if cat not in category_dic:
+            category_dic[cat] = Category(cat)
+        curr_category = category_dic.get(cat)
+        curr_category.add_establishment(estab)
+        estab.set_category(curr_category)
     f.close()
 
 ##parse fixed bills
@@ -68,53 +102,40 @@ parse_expenses(key_database_fn)
 parse_xls_html(isracard_fn)
 
 ##set categories sums, unlisted sums
-f = open(categories_db, 'rb')
-reader = csv.reader(f)
-uncategorized = set()
-sum = 0
-for key in expenses_dic:
-    sum+=expenses_dic[key]
-    cat = "unlisted category"
-    f.seek(0)
-    for row in reader:
-        if key in row:
-            cat = row[0]
-            break
-    tmp = categorized_expenss.get(cat, 0)
-    categorized_expenss[cat] = tmp + expenses_dic[key]
-    buisiness_to_entities[key] = cat
-    if cat == "unlisted category":
-        uncategorized.add(key)
-f.close()
+set_categories()
 
 ##print categorized items
 output_file = open("output.csv", 'w')
 print_to_csv(output_file,"Financial Analysis","",True)
 sum=0
-for key in categorized_expenss:
-    sum+=categorized_expenss[key]
-    print key, categorized_expenss[key]
-    print_to_csv(output_file,key,categorized_expenss[key],True)
+for key in category_dic:
+    cat_input=category_dic[key]
+    sum += cat_input.get_amount()
+    if cat_input.get_amount() > 0:
+        print key, cat_input.get_amount()
+        print_to_csv(output_file,key,cat_input.get_amount(),True)
 print "סכום",sum
 print_to_csv(output_file,"Sum",sum,True)
 print_to_csv(output_file,"","",True)
 
 ##print items not categorized
-if (len(uncategorized)>0):
+uncategorized = category_dic[UNLISTED_CATEGORY]
+if (uncategorized.get_amount() > 0):
     print "\nFollowing items not categorized"
     print_to_csv(output_file,"Following items not categorized","",True)
-    for key in uncategorized:
-        print key
-        print_to_csv(output_file,key,"",True)
+    for estab in uncategorized.get_establishments():
+        print estab.get_name()
+        print_to_csv(output_file,estab.get_name(),"",True)
     print_to_csv(output_file,"","",True)
 
 ##print business Establishments:
 print "\nTop Business Establishments:"
 print_to_csv(output_file,"Top Business Establishments","",True)
-pairs = sorted(expenses_dic.items(), key=lambda x: x[1])
+pairs = sorted(establishment_dic.items(), key=lambda x: x[1].get_amount())
 for tuple in reversed(pairs):
-    cat_for_expense = buisiness_to_entities.get(tuple[0],"unlisted category") + "," + tuple[0]
-    print cat_for_expense,":",tuple[1]
-    print_to_csv(output_file,cat_for_expense,tuple[1],True)
+    estab = tuple[1]
+    print_estab = estab.get_category().get_name() + "," + estab.get_name()
+    print print_estab,":",estab.get_amount()
+    print_to_csv(output_file, print_estab, estab.get_amount(), True)
 
 output_file.close()
