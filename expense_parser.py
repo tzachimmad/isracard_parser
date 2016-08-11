@@ -14,7 +14,7 @@ download_dir = '/home/redbend/Downloads/'
 isracard_fn = 'sheta.xls'
 key_database_fn = 'fixed.csv'
 categories_db = 'businesses.csv'
-credinitials_fn = '/home/redbend/Desktop/training/python scripts/credinitials.csv'
+credinitials_fn = '----------------------------------------------------------'
 chrome_driver_path = '/home/redbend/Desktop/training/Hackathon/chromedriver'
 
 #define vars
