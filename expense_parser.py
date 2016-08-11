@@ -4,11 +4,17 @@ import csv
 from bs4 import BeautifulSoup, SoupStrainer
 import datetime
 from datetime import date
+from isracard_update import *
+from os import remove
+#download directory
+download_dir = '/home/redbend/Downloads/'
 
 #filenames
 isracard_fn = 'sheta.xls'
 key_database_fn = 'fixed.csv'
 categories_db = 'businesses.csv'
+credinitials_fn = '/home/redbend/Desktop/training/python scripts/credinitials.csv'
+chrome_driver_path = '/home/redbend/Desktop/training/Hackathon/chromedriver'
 
 #define vars
 CASH_ENTRY = "משיכת מזומנים"
@@ -98,6 +104,17 @@ def set_categories():
         estab.set_category(curr_category)
     f.close()
 
+##clean download directory
+clean_directory(download_dir)
+
+
+##download relative isracard sheet
+a,b,c = read_credinitials(credinitials_fn)
+downloadLatestSheet(a,b,c,chrome_driver_path)
+
+##set correct isracard sheet file name
+isracard_fn = retrieve_isracard_sheet(download_dir)
+
 ##parse fixed bills
 parse_expenses(key_database_fn)
 
@@ -141,3 +158,4 @@ for tuple in reversed(pairs):
     print_to_csv(output_file, estab.get_name(), estab.get_amount(), True)
 
 output_file.close()
+remove(isracard_fn)
