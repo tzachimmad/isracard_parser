@@ -6,6 +6,7 @@ import datetime
 from datetime import date
 from isracard_update import *
 from os import remove
+
 #download directory
 download_dir = '/home/redbend/Downloads/'
 
