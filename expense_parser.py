@@ -5,17 +5,18 @@ from bs4 import BeautifulSoup, SoupStrainer
 import datetime
 from datetime import date
 from isracard_update import *
-from os import remove
+import os
+##from os import remove, open
 
 #download directory
-download_dir = '/home/redbend/Downloads/'
+download_dir = '/Users/tzachimmad/Downloads/'
 
 #filenames
 isracard_fn = 'sheta.xls'
 key_database_fn = 'fixed.csv'
 categories_db = 'businesses.csv'
-credinitials_fn = '----------------------------------------------------------'
-chrome_driver_path = '/home/redbend/Desktop/training/Hackathon/chromedriver'
+credinitials_fn = '------------------------------------------'
+chrome_driver_path = '/Users/tzachimmad/Desktop/isracard_parser-master/chromedriver'
 
 #define vars
 CASH_ENTRY = "משיכת מזומנים"
@@ -160,3 +161,4 @@ for tuple in reversed(pairs):
 
 output_file.close()
 remove(isracard_fn)
+os.system('open output.csv')
