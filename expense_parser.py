@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
 from expense_class import *
 import csv
-from bs4 import BeautifulSoup, SoupStrainer
+import xlrd
 import datetime
 from datetime import date
 from isracard_update import *
-import os
-##from os import remove, open
+from os import remove
 
 #download directory
-download_dir = '/Users/tzachimmad/Downloads/'
+download_dir = '/home/redbend/Downloads/'
 
 #filenames
 isracard_fn = 'sheta.xls'
 key_database_fn = 'fixed.csv'
 categories_db = 'businesses.csv'
-credinitials_fn = '------------------------------------------'
-chrome_driver_path = '/Users/tzachimmad/Desktop/isracard_parser-master/chromedriver'
+credinitials_fn = '/home/redbend/Desktop/training/python scripts/credinitials.csv'
+chrome_driver_path = '/home/redbend/Desktop/training/Hackathon/chromedriver'
 
 #define vars
 CASH_ENTRY = "משיכת מזומנים"
 UNLISTED_CATEGORY = "unlisted category"
+IGNORE_ISRACARD_ENTRY = "סך חיוב בש\"ח:"
 
 #dictionaries
 expense_list = []
@@ -55,25 +55,21 @@ def add_expense(date_made, estab_name, amount, cash):
 
 #parse isracard xls in html format
 def parse_xls_html(path):
-    htmlfile = open(path)
-    xls_soup = BeautifulSoup(htmlfile,"html.parser")
-    for item in xls_soup.findAll("tr"):
-        if "NIS" in str(item):
-            blocks = str(item).split('<td')
-            if "grey" in blocks[0]:
-                break
-            if "><" not in blocks[1]:
-                s = str(blocks[1]).find(">")+1
-                t = str(blocks[1]).find("<")
-                date_str =  str(blocks[1])[s:t]
-                date_split = date_str.split('/')
-                date_made = date(int(date_split[2]),int(date_split[1]), int(date_split[0]))
-                k = str(blocks[2]).find("<")
-                establishment = blocks[2][1:k].replace("&#39;", "")
-                establishment = establishment.replace("&quot;", "")
-                amount =  float(blocks[4].split("<span>")[1].split("</span>")[0])
-                add_expense(date_made, establishment, amount, False)
-    htmlfile.close
+    book = xlrd.open_workbook(filename=path, encoding_override="cp1252")
+    first_sheet = book.sheet_by_index(0)
+    row = 6
+    keep_parsing = True
+    while keep_parsing:
+        establishment = first_sheet.cell(row,1).value
+        if (establishment == IGNORE_ISRACARD_ENTRY):
+            row += 1
+            if first_sheet.cell(row,1).value == xlrd.empty_cell.value:
+                keep_parsing = False
+            continue
+        amount = first_sheet.cell(row,3).value
+        date_made = first_sheet.cell(row,0).value
+        add_expense(date_made, establishment, float(amount[1:]), False)
+        row +=1
 
 #function, loads sheet expenses to expenses database dictionary
 def parse_expenses (path):
@@ -161,4 +157,3 @@ for tuple in reversed(pairs):
 
 output_file.close()
 remove(isracard_fn)
-os.system('open output.csv')

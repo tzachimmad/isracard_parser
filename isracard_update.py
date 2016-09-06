@@ -6,12 +6,15 @@ import time
 import csv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 def downloadLatestSheet(user_id, card_info, pass_word,chrome_driver_path):
-    driver = webdriver.Chrome(chrome_driver_path)
+    options = webdriver.ChromeOptions()
+    options.add_argument("user-data-dir=/home/redbend/.config/google-chrome") #Path to your chrome profile
+    driver = webdriver.Chrome(executable_path=chrome_driver_path, chrome_options=options)
     driver.set_window_size(1024,768)
     driver.get('https://digital.isracard.co.il/personalarea/login/')
     driver.find_element(By.ID, 'otpLoginID').clear()
@@ -20,7 +23,7 @@ def downloadLatestSheet(user_id, card_info, pass_word,chrome_driver_path):
     driver.find_element_by_id("otpLoginLastDigits").send_keys(card_info)
     driver.find_element_by_id("otpLoginPwd").clear()
     driver.find_element_by_id("otpLoginPwd").send_keys(pass_word)
-    driver.find_element_by_xpath("(//button[@type='submit'])[2]").click()
+    driver.find_element_by_xpath("(//button[@type='submit'])[1]").click()
     time.sleep(1)
     driver.get('https://digital.isracard.co.il/personalarea/transaction-list/');
     time.sleep(1)
