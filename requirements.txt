@@ -1,2 +1,2 @@
-bs4
+xlrd
 selenium
