@@ -107,11 +107,14 @@ clean_directory(download_dir)
 
 
 ##download relative isracard sheet
-a,b,c = read_credinitials(credinitials_fn)
-downloadLatestSheet(a,b,c,chrome_driver_path)
+if sys.argv[1].find("download_sheet")>=0:
+    a,b,c = read_credinitials(credinitials_fn)
+    downloadLatestSheet(a,b,c,chrome_driver_path)
 
 ##set correct isracard sheet file name
-isracard_fn = retrieve_isracard_sheet(download_dir)
+    isracard_fn = retrieve_isracard_sheet(download_dir)
+else:
+    isracard_fn = sys.argv[1]
 
 ##parse fixed bills
 parse_expenses(key_database_fn)
