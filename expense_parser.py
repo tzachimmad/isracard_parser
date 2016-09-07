@@ -102,12 +102,45 @@ def set_categories():
         estab.set_category(curr_category)
     f.close()
 
-##clean download directory
-clean_directory(download_dir)
+def output_data():
+    output_file = open("output.csv", 'w')
+    print_to_csv(output_file,"Financial Analysis","",True)
+    sum=0
+    for key in category_dic:
+        cat_input=category_dic[key]
+        sum += cat_input.get_amount()
+        if cat_input.get_amount() > 0:
+            print key, cat_input.get_amount()
+            print_to_csv(output_file,key,cat_input.get_amount(),True)
+    print "סכום",sum
+    print_to_csv(output_file,"Sum",sum,True)
+    print_to_csv(output_file,"","",True)
 
+    ##print items not categorized
+    uncategorized = category_dic[UNLISTED_CATEGORY]
+    if (uncategorized.get_amount() > 0):
+        print "\nFollowing items not categorized"
+        print_to_csv(output_file,"Following items not categorized","",True)
+        for estab in uncategorized.get_establishments():
+            print estab.get_name()
+            print_to_csv(output_file,estab.get_name(),"",True)
+        print_to_csv(output_file,"","",True)
+
+    ##print business Establishments:
+    print "\nTop Business Establishments:"
+    print_to_csv(output_file,"Top Business Establishments","",True)
+    pairs = sorted(establishment_dic.items(), key=lambda x: x[1].get_amount())
+    for tuple in reversed(pairs):
+        estab = tuple[1]
+        print estab.get_name(),":",estab.get_amount()
+        print_to_csv(output_file, estab.get_name(), estab.get_amount(), True)
+
+    output_file.close()
+    remove(isracard_fn)
 
 ##download relative isracard sheet
 if sys.argv[1].find("download_sheet")>=0:
+    clean_directory(download_dir)
     a,b,c = read_credinitials(credinitials_fn)
     downloadLatestSheet(a,b,c,chrome_driver_path)
 
@@ -126,37 +159,4 @@ parse_xls_html(isracard_fn)
 set_categories()
 
 ##print categorized items
-output_file = open("output.csv", 'w')
-print_to_csv(output_file,"Financial Analysis","",True)
-sum=0
-for key in category_dic:
-    cat_input=category_dic[key]
-    sum += cat_input.get_amount()
-    if cat_input.get_amount() > 0:
-        print key, cat_input.get_amount()
-        print_to_csv(output_file,key,cat_input.get_amount(),True)
-print "סכום",sum
-print_to_csv(output_file,"Sum",sum,True)
-print_to_csv(output_file,"","",True)
-
-##print items not categorized
-uncategorized = category_dic[UNLISTED_CATEGORY]
-if (uncategorized.get_amount() > 0):
-    print "\nFollowing items not categorized"
-    print_to_csv(output_file,"Following items not categorized","",True)
-    for estab in uncategorized.get_establishments():
-        print estab.get_name()
-        print_to_csv(output_file,estab.get_name(),"",True)
-    print_to_csv(output_file,"","",True)
-
-##print business Establishments:
-print "\nTop Business Establishments:"
-print_to_csv(output_file,"Top Business Establishments","",True)
-pairs = sorted(establishment_dic.items(), key=lambda x: x[1].get_amount())
-for tuple in reversed(pairs):
-    estab = tuple[1]
-    print estab.get_name(),":",estab.get_amount()
-    print_to_csv(output_file, estab.get_name(), estab.get_amount(), True)
-
-output_file.close()
-remove(isracard_fn)
+output_data()
