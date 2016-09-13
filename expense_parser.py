@@ -8,14 +8,15 @@ from isracard_update import *
 from os import remove
 
 #download directory
-download_dir = '/home/redbend/Downloads/'
+download_dir = ""
 
 #filenames
-isracard_fn = 'sheta.xls'
-key_database_fn = 'fixed.csv'
-categories_db = 'businesses.csv'
-credinitials_fn = '/home/redbend/Desktop/training/python scripts/credinitials.csv'
-chrome_driver_path = '/home/redbend/Desktop/training/Hackathon/chromedriver'
+config = '/home/redbend/PycharmProjects/isracard_parser-master/config'
+isracard_fn = ""
+key_database_fn = ""
+categories_db = ""
+credinitials_fn = ""
+chrome_driver_path = ""
 
 #define vars
 CASH_ENTRY = "משיכת מזומנים"
@@ -137,6 +138,17 @@ def output_data():
 
     output_file.close()
     remove(isracard_fn)
+
+def parse_globalVars():
+    arr = []
+    with open(config, "r") as ins:
+        for line in ins:
+            x = line.find("=")
+            if x > 0:
+                arr.append(line[x+2:].replace("\n",""))
+    return arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]
+
+isracard_fn,key_database_fn,categories_db,credinitials_fn,chrome_driver_path,download_dir = parse_globalVars()
 
 ##download relative isracard sheet
 if sys.argv[1].find("download_sheet")>=0:

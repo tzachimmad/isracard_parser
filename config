@@ -1,0 +1,6 @@
+isracard_fn = /home/redbend/PycharmProjects/isracard_parser-master/sheta.xls
+key_database_fn = /home/redbend/PycharmProjects/isracard_parser-master/fixed.csv
+categories_db = /home/redbend/PycharmProjects/isracard_parser-master/businesses.csv
+credinitials_fn = /home/redbend/Desktop/training/python scripts/credinitials.csv
+chrome_driver_path = /home/redbend/Desktop/training/Hackathon/chromedriver
+download_dir = /home/redbend/Downloads/
