@@ -67,9 +67,9 @@ def parse_xls_html(path):
             if first_sheet.cell(row,1).value == xlrd.empty_cell.value:
                 keep_parsing = False
             continue
-        amount = first_sheet.cell(row,3).value
+        amount = first_sheet.cell(row,2).value
         date_made = first_sheet.cell(row,0).value
-        add_expense(date_made, establishment, float(amount[1:]), False)
+        add_expense(date_made, establishment, amount, False)
         row +=1
 
 #function, loads sheet expenses to expenses database dictionary
