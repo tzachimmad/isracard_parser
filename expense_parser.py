@@ -11,7 +11,7 @@ from os import remove
 download_dir = ""
 
 #filenames
-config = '/home/redbend/PycharmProjects/isracard_parser-master/config'
+config = '/Users/tzachilapidot/Desktop/isracard_parser-master/config'
 isracard_fn = ""
 key_database_fn = ""
 categories_db = ""
@@ -146,9 +146,9 @@ def parse_globalVars():
             x = line.find("=")
             if x > 0:
                 arr.append(line[x+2:].replace("\n",""))
-    return arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]
+    return arr[0],arr[1],arr[2],arr[3],arr[4]
 
-isracard_fn,key_database_fn,categories_db,credinitials_fn,chrome_driver_path,download_dir = parse_globalVars()
+key_database_fn,categories_db,credinitials_fn,chrome_driver_path,download_dir = parse_globalVars()
 
 ##download relative isracard sheet
 if sys.argv[1].find("download_sheet")>=0:
