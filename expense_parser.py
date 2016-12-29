@@ -11,10 +11,10 @@ from os import remove
 download_dir = ""
 
 #filenames
-config = '/Users/tzachilapidot/Desktop/isracard_parser-master/config'
-isracard_fn = ""
-key_database_fn = ""
-categories_db = ""
+config = '/Users/tzachilapidot/Desktop/isracard_parser-master/config'     
+isracard_fn = ""      
+key_database_fn = ""     #fixed expenses csv, list of fixed expenses and their amounts
+categories_db = ""       #database of categories and relative buisiness establishments
 credinitials_fn = ""
 chrome_driver_path = ""
 
