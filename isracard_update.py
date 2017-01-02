@@ -13,7 +13,7 @@ sys.setdefaultencoding('utf-8')
 
 def downloadLatestSheet(user_id, card_info, pass_word,chrome_driver_path):
     options = webdriver.ChromeOptions()
-    options.add_argument("user-data-dir=/home/redbend/.config/google-chrome") #Path to your chrome profile
+    options.add_argument("user-data-dir=/home/redbend/Desktop/training/python scripts/whatsapp_poll-master") #Path to your chrome profile
     driver = webdriver.Chrome(executable_path=chrome_driver_path, chrome_options=options)
     driver.set_window_size(1024,768)
     driver.get('https://digital.isracard.co.il/personalarea/login/')
@@ -27,7 +27,8 @@ def downloadLatestSheet(user_id, card_info, pass_word,chrome_driver_path):
     time.sleep(1)
     driver.get('https://digital.isracard.co.il/personalarea/transaction-list/');
     time.sleep(1)
-    driver.find_element_by_css_selector("li > img").click()
+    driver.find_element_by_xpath("//*[@id=\"wholePageExport\"]/div[5]/div/div/div/div[1]/div[1]/ul/li[1]/img").click()
+    time.sleep(5)
     driver.find_element_by_link_text(u"יציאה").click()
     driver.quit()
 
